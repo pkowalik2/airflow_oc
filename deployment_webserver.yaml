@@ -1,0 +1,79 @@
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: webserver
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+         app: webserver
+    template:
+      metadata:
+        labels:
+          app: webserver
+      spec:
+        serviceAccountName: scheduler
+        containers:
+        - name: webserver
+          env:
+          - name: POSTGRESQL_USER
+            valueFrom:
+                secretKeyRef:
+                   name: postgresql
+                   key: database-user
+          - name: POSTGRESQL_PASSWORD
+            valueFrom:
+                secretKeyRef:
+                   name: postgresql
+                   key: database-password
+          - name: POSTGRESQL_DATABASE
+            valueFrom:
+                secretKeyRef:
+                   name: postgresql
+                   key: database-name                 
+          - name : AIRFLOW__CORE__EXECUTOR
+            value: KubernetesExecutor
+          - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+            value: postgresql+psycopg2://${POSTGRESQL_USER}:${POSTGRESQL_PASSWORD}@postgresql:5432/${POSTGRESQL_DATABASE}         
+          - name: _AIRFLOW_DB_UPGRADE
+            value: "true"
+          - name: AIRFLOW_HOME
+            value: "/opt/airflow"
+          - name: HOME
+            value: "/opt/airflow"
+          - name: _AIRFLOW_WWW_USER_CREATE
+            value: "true"
+          - name: _AIRFLOW_WWW_USER_USERNAME
+            value: airflow
+          - name: _AIRFLOW_WWW_USER_PASSWORD
+            value: airflow
+          image: apache/airflow
+          args:
+          - webserver
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: 5555
+            protocol: TCP
+          - containerPort: 8080
+            protocol: TCP
+          - containerPort: 8793
+            protocol: TCP
+          resources:
+            limits:
+              cpu: '0.5'
+              memory: 2Gi
+          volumeMounts:
+          - mountPath: "/opt/airflow/dags"
+            name: pvcdag
+          - mountPath: "/opt/airflow/logs"
+            name: pvclog
+        restartPolicy: Always
+        volumes:
+        - name: pvcdag
+          persistentVolumeClaim:
+            claimName: pvcdag
+        - name: pvclog
+          persistentVolumeClaim:
+            claimName: pvclog
+    triggers:
+    - type: ConfigChange

@@ -1,0 +1,72 @@
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: scheduler
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+         app: scheduler
+    template:
+      metadata:
+        labels:
+          app: scheduler
+      spec:
+        containers:
+        - name: scheduler
+          env:
+          - name: POSTGRESQL_USER
+            valueFrom:
+                secretKeyRef:
+                   name: postgresql
+                   key: database-user
+          - name: POSTGRESQL_PASSWORD
+            valueFrom:
+                secretKeyRef:
+                   name: postgresql
+                   key: database-password
+          - name: POSTGRESQL_DATABASE
+            valueFrom:
+                secretKeyRef:
+                   name: postgresql
+                   key: database-name    
+          - name: AIRFLOW_KUBE_NAMESPACE
+            value: p-kowalik2-dev                    
+          - name : AIRFLOW__CORE__EXECUTOR
+            value: KubernetesExecutor
+          - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+            value: postgresql+psycopg2://${POSTGRESQL_USER}:${POSTGRESQL_PASSWORD}@postgresql:5432/${POSTGRESQL_DATABASE}  
+          - name: AIRFLOW_HOME
+            value: "/opt/airflow"
+          - name: HOME
+            value: "/opt/airflow"
+          image: apache/airflow
+          args:
+          - scheduler
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: 5555
+            protocol: TCP
+          - containerPort: 8080
+            protocol: TCP
+          - containerPort: 8793
+            protocol: TCP
+          resources:
+            limits:
+              cpu: '0.5'
+              memory: 2Gi
+          volumeMounts:
+          - mountPath: "/opt/airflow/dags"
+            name: pvcdag2
+          - mountPath: "/opt/airflow/logs"
+            name: pvclog2
+        restartPolicy: Always
+        volumes:
+        - name: pvcdag2
+          persistentVolumeClaim:
+            claimName: pvcdag2
+        - name: pvclog2
+          persistentVolumeClaim:
+            claimName: pvclog2
+    triggers:
+    - type: ConfigChange

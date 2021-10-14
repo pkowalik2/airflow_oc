@@ -1,0 +1,24 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: p-kowalik2-dev
+  name: airflow
+rules:
+  - apiGroups:
+      - ''
+    resources:
+      - pods
+    verbs:
+      - get
+      - watch
+      - list
+      - create
+      - update
+      - delete
+---
+  
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: scheduler
+  namespace: p-kowalik2-dev
