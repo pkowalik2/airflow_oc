@@ -48,8 +48,7 @@
           - name: _AIRFLOW_WWW_USER_PASSWORD
             value: airflow
           image: apache/airflow
-          args:
-          - webserver
+          args: ["webserver"]
           imagePullPolicy: IfNotPresent
           ports:
           - containerPort: 5555

@@ -12,6 +12,7 @@
         labels:
           app: scheduler
       spec:
+        serviceAccountName: scheduler
         containers:
         - name: scheduler
           env:
@@ -30,7 +31,7 @@
                 secretKeyRef:
                    name: postgresql
                    key: database-name    
-          - name: AIRFLOW_KUBE_NAMESPACE
+          - name: AIRFLOW__KUBERNETES__NAMESPACE
             value: p-kowalik2-dev                    
           - name : AIRFLOW__CORE__EXECUTOR
             value: KubernetesExecutor
