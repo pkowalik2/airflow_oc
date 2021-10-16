@@ -7,19 +7,14 @@ def print_hello():
     return 'Hello world from first Airflow DAG!'
 
 
-
-resource_config = {"KubernetesExecutor": {"request_memory": "200Mi", 
-                                          "limit_memory": "200Mi", 
-                                          "request_cpu": "200m", 
-                                          "limit_cpu": "200m"}}
-
-
-
 dag = DAG('hello_world', description='Hello World DAG',
           schedule_interval='0 12 * * *',
           start_date=datetime(2017, 3, 20), catchup=False,
-          executor_config = resource_config)
+        )
 
-hello_operator = PythonOperator(task_id='hello_task', python_callable=print_hello, dag=dag)
+one_task = PythonOperator(
+    task_id="one_task", python_callable=hello_world, dag=dag,
+    executor_config={"KubernetesExecutor": {"image": "apache/airflow:latest"}}
+)
 
-hello_operator
+one_task
