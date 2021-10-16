@@ -18,7 +18,6 @@ resource_config = {"KubernetesExecutor": {"request_memory": "200Mi",
 dag = DAG('hello_world', description='Hello World DAG',
           schedule_interval='0 12 * * *',
           start_date=datetime(2017, 3, 20), catchup=False,
-		  owner='airflow',
           executor_config = resource_config)
 
 hello_operator = PythonOperator(task_id='hello_task', python_callable=print_hello, dag=dag)
