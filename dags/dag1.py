@@ -13,7 +13,7 @@ dag = DAG('hello_world', description='Hello World DAG',
         )
 
 one_task = PythonOperator(
-    task_id="one_task", python_callable=hello_world, dag=dag,
+    task_id="one_task", python_callable=print_hello, dag=dag,
     executor_config={"KubernetesExecutor": {"image": "apache/airflow:latest"}}
 )
 
