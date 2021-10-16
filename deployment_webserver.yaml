@@ -47,7 +47,7 @@
             value: airflow
           - name: _AIRFLOW_WWW_USER_PASSWORD
             value: airflow
-          image: apache/airflow
+          image: ejbejbej/airflow_test
           args: ["webserver"]
           imagePullPolicy: IfNotPresent
           ports:
