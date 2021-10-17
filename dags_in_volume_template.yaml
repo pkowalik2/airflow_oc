@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: worker
+spec:
+  containers:
+    - args: []
+      command: []
+      env:
+        - name: AIRFLOW__CORE__EXECUTOR
+          value: LocalExecutor
+        - name: POSTGRESQL_USER
+            valueFrom:
+                secretKeyRef:
+                   name: postgresql
+                   key: database-user
+          - name: POSTGRESQL_PASSWORD
+            valueFrom:
+                secretKeyRef:
+                   name: postgresql
+                   key: database-password
+          - name: POSTGRESQL_DATABASE
+            valueFrom:
+                secretKeyRef:
+                   name: postgresql
+                   key: database-name                 
+          - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+            value: postgresql+psycopg2://${POSTGRESQL_USER}:${POSTGRESQL_PASSWORD}@postgresql:5432/${POSTGRESQL_DATABASE}
+          - name: AIRFLOW_CONN_AIRFLOW_DB
+            value: postgresql+psycopg2://${POSTGRESQL_USER}:${POSTGRESQL_PASSWORD}@postgresql:5432/${POSTGRESQL_DATABASE}
+      envFrom: []
+      image: ejbejbej/airflow_test
+      imagePullPolicy: IfNotPresent
+      name: base
+      ports: []
+      volumeMounts:
+        - mountPath: "/opt/airflow/logs"
+          name: airflow-logs
+        - mountPath: /opt/airflow/dags
+          name: airflow-dags
+          readOnly: true
+          subPath: repo/tests/dags
+  hostNetwork: false
+  restartPolicy: Never
+  securityContext:
+    runAsUser: 50000
+    fsGroup: 50000
+  volumes:
+        - name: pvcdag
+          persistentVolumeClaim:
+            claimName: pvcdag
+        - name: pvclog
+          persistentVolumeClaim:
+            claimName: pvclog
