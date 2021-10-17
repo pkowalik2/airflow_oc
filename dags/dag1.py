@@ -5,8 +5,15 @@ from airflow.operators.python_operator import PythonOperator
 import requests
 
 def head():
-    r = requests.head("https://www.google.com")
-    return r.headers
+
+    try:        
+        r = requests.head("https://www.google.com")
+        print(r.status_code)
+        print(r.headers)
+    except Exception as e:
+        print(e)
+    
+    return ''
 
 
 
