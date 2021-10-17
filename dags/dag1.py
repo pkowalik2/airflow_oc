@@ -16,7 +16,7 @@ dag = DAG('dag1', description='dag1',
         )
 
 task_one = PythonOperator(
-    task_id="task_one", python_callable=print_hello, dag=dag
+    task_id="task_one", python_callable=head, dag=dag
 )
 
 task_one
