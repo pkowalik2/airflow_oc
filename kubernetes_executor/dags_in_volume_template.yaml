@@ -35,9 +35,9 @@ spec:
       ports: []
       volumeMounts:
         - mountPath: "/opt/airflow/logs"
-          name: airflow-logs
+          name: pvclog
         - mountPath: /opt/airflow/dags
-          name: airflow-dags
+          name: pvcdag
           readOnly: true
           subPath: repo/tests/dags
   hostNetwork: false
